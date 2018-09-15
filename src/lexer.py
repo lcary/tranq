@@ -1,4 +1,36 @@
+from enum import Enum
+from typing import List, Optional, NamedTuple
+
+
+class TokenType(Enum):
+    operator = 1
+    variable = 2
+    number = 3
+    string = 4
+    grouping = 5
+    unknown = 6
+
+    def __repr__(self):
+        return self.name
+
+
+class Token(NamedTuple):
+    """
+    A small unit of language, consisting of a type and value.
+
+    For example, a token with value '+' might be an operator,
+    or a token with value '1' might be a number.
+    """
+    token_type: TokenType
+    value: str
+
+
 class Lexer(object):
+    """
+    Creates lists of tokens from input text.
+
+    Inspired by https://medium.freecodecamp.org/the-programming-language-pipeline-91d3f449c919  # noqa: E501
+    """
 
     split_chars = (' ', ':', ';', ',', '(', ')', '{', '}', '[', ']', '=', '<',
                    '>', '|', '@', '#', '$', '%', '^', '&', '*', '?', '-', '+',
@@ -16,36 +48,58 @@ class Lexer(object):
     newline_chars = ('\n')
     whitespace_chars = (' ')
 
-    def __init__(self):
-        self.tokens = []
-        self.temp = ''
-        self.start_group = False
-        self.end_group_char = None
+    def __init__(self) -> None:
+        self.tokens: List[Token] = []
+        self.temp: str = ''
+        self.start_group: bool = False
+        self.end_group_char: Optional[str] = None
 
-    def parse_tokens(self, *args, **kwargs):
-        for string in args:
-            length = len(string)
-            for index, char in enumerate(string):
+    def parse_tokens(self, *args, **kwargs) -> List[Token]:
+        """
+        Returns a list of tokens for given input text.
+        """
+        for text in args:
+            index = 0
+            length = len(text)
+            end_of_text = False
+
+            def end_of_text() -> bool:
+                return index == length - 1
+
+            for char in text:
                 self.parse_token(char)
-                if index == length - 1 and self.temp:
-                    self.tokens.append(self.temp)
+                if end_of_text() and self.temp:
+                    self.tokens.append(Token(TokenType.unknown, self.temp))
+                index += 1
+
         return self.tokens
 
     def parse_token(self, char: str) -> None:
-
+        """
+        Parses a character for tokens, updating `self.tokens` and
+        returning nothing. The returns are used to exit the function early
+        """
         if self.is_start_group(char):
-            return self.parse_start_group(char)
+            self.parse_start_group(char)
+            return
 
         if self.is_end_group(char):
-            return self.parse_end_group(char)
+            self.parse_end_group(char)
+            return
 
         if self.is_group_part(char):
-            return self.parse_group_part(char)
+            self.parse_group_part(char)
+            return
 
         if self.is_split_char(char):
-            return self.parse_split_char(char)
+            self.parse_split_char(char)
+            return
         else:
-            return self.parse_generic_char(char)
+            self.parse_generic_char(char)
+            return
+
+        raise ValueError('Edge case encountered: token ({}) '
+            'not parsed during state: ({})'.format(char, self.__dict__))
 
     def is_start_group(self, char: str) -> bool:
         return not self.start_group and char in self.group_chars
@@ -53,15 +107,15 @@ class Lexer(object):
     def parse_start_group(self, char: str) -> None:
         self.start_group = True
         self.end_group_char = self.group_chars[char]
-        self.tokens.append(char)
+        self.tokens.append(Token(TokenType.operator, char))
         return
 
     def is_end_group(self, char: str) -> bool:
         return self.start_group and char == self.end_group_char
 
     def parse_end_group(self, char: str) -> None:
-        self.tokens.append(self.temp)
-        self.tokens.append(char)
+        self.tokens.append(Token(TokenType.grouping, self.temp))
+        self.tokens.append(Token(TokenType.operator, char))
         self.temp = ''
         self.start_group = False
         self.end_group_char = None
@@ -79,10 +133,10 @@ class Lexer(object):
 
     def parse_split_char(self, char: str) -> None:
         if self.temp != '':
-            self.tokens.append(self.temp)
+            self.tokens.append(Token(TokenType.variable, self.temp))
             self.temp = ''
         if char not in self.whitespace_chars:
-            self.tokens.append(char)
+            self.tokens.append(Token(TokenType.operator, char))
         return
 
     def parse_generic_char(self, char: str) -> None:
