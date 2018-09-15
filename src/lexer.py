@@ -52,49 +52,49 @@ class Lexer(object):
         self.start_group: bool = False
         self.end_group_char: Optional[str] = None
 
-    def parse_tokens(self, *args, **kwargs) -> List[Token]:
+    def get_tokens(self, *args, **kwargs) -> List[Token]:
         """
         Returns a list of tokens for given input text.
         """
         for text in args:
             for char in text:
-                self.parse_token(char)
-            self.parse_end_of_text()
+                self.set_tokens(char)
+            self.flush_temp()
 
         return self.tokens
 
-    def parse_token(self, char: str) -> None:
+    def set_tokens(self, char: str) -> None:
         """
-        Parses a character for tokens, updating `self.tokens` and
-        returning nothing. The returns are used to exit the function early
+        Updates `self.tokens` based on the input character and
+        returning nothing. The returns are used to exit the function early.
         """
         if self.is_start_group(char):
-            self.parse_start_group(char)
+            self.set_start_group(char)
             return
 
         if self.is_end_group(char):
-            self.parse_end_group(char)
+            self.set_end_group(char)
             return
 
         if self.is_group_part(char):
-            self.parse_group_part(char)
+            self.set_group_part(char)
             return
 
         if self.is_split_char(char):
-            self.parse_split_char(char)
+            self.set_split_char(char)
             return
         else:
-            self.parse_generic_char(char)
+            self.set_generic_char(char)
             return
 
         raise ValueError(
             'Edge case encountered: token ({}) '
-            'not parsed during state: ({})'.format(char, self.__dict__))
+            'not parsed during Lexer state: ({})'.format(char, self.__dict__))
 
     def is_start_group(self, char: str) -> bool:
         return not self.start_group and char in self.group_chars
 
-    def parse_start_group(self, char: str) -> None:
+    def set_start_group(self, char: str) -> None:
         self.start_group = True
         self.end_group_char = self.group_chars[char]
         self.tokens.append(Token(TokenType.operator, char))
@@ -103,7 +103,7 @@ class Lexer(object):
     def is_end_group(self, char: str) -> bool:
         return self.start_group and char == self.end_group_char
 
-    def parse_end_group(self, char: str) -> None:
+    def set_end_group(self, char: str) -> None:
         self.tokens.append(Token(TokenType.identifier, self.temp))
         self.tokens.append(Token(TokenType.operator, char))
         self.temp = ''
@@ -114,27 +114,24 @@ class Lexer(object):
     def is_group_part(self, char: str) -> bool:
         return self.start_group and char != self.end_group_char
 
-    def parse_group_part(self, char: str) -> None:
+    def set_group_part(self, char: str) -> None:
         self.temp += char
         return
 
     def is_split_char(self, char: str) -> bool:
         return char in self.split_chars
 
-    def parse_split_char(self, char: str) -> None:
-        self._flush_temp()
+    def set_split_char(self, char: str) -> None:
+        self.flush_temp()
         if char not in self.whitespace_chars:
             self.tokens.append(Token(TokenType.operator, char))
         return
 
-    def parse_generic_char(self, char: str) -> None:
+    def set_generic_char(self, char: str) -> None:
         self.temp += char
         return
 
-    def parse_end_of_text(self):
-        self._flush_temp()
-
-    def _flush_temp(self):
+    def flush_temp(self):
         if self.temp != '':
             try:
                 int(self.temp)

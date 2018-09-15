@@ -7,7 +7,7 @@ class TestLexer(unittest.TestCase):
     def test_demo_text_1(self):
         text = "print: 4 * var + 1"
         lexer = Lexer()
-        tokens = lexer.parse_tokens(text)
+        tokens = lexer.get_tokens(text)
         expect = [
             Token(token_type=TokenType.identifier, value='print'),
             Token(token_type=TokenType.operator, value=':'),
