@@ -1,6 +1,6 @@
 import sys
 
-from lexer import Lexer
+from src.lexer import Lexer
 
 
 def main():
