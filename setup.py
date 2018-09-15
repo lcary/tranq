@@ -26,6 +26,6 @@ setup(
     ],
     packages=find_packages(exclude=['tests*']),
     include_package_data=True,
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     author='Luc Cary',
     author_email='luc.cary@gmail.com')
