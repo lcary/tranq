@@ -6,3 +6,6 @@ default:
 
 test:
 	python -m unittest discover
+
+autoformat:
+	yapf -r -p -i src tests

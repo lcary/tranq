@@ -1,13 +1,18 @@
 class Lexer(object):
 
-    split_chars = (
-        ' ', ':', ';', ',', '(', ')', '{', '}', '[', ']', '=', 
-        '<', '>', '|', '@', '#', '$', '%', '^', '&', '*', '?',
-        '-', '+', '*', '/', '~', '`', '"', '\'', '\\')
+    split_chars = (' ', ':', ';', ',', '(', ')', '{', '}', '[', ']', '=', '<',
+                   '>', '|', '@', '#', '$', '%', '^', '&', '*', '?', '-', '+',
+                   '*', '/', '~', '`', '"', '\'', '\\')
     group_chars = {
-        '(':')', '{':'}', '[':']', '<':'>', 
-        '`':'`', '"':'"', '\'':'\''}
-    escape_chars = ('\\',)
+        '(': ')',
+        '{': '}',
+        '[': ']',
+        '<': '>',
+        '`': '`',
+        '"': '"',
+        '\'': '\''
+    }
+    escape_chars = ('\\', )
     newline_chars = ('\n')
     whitespace_chars = (' ')
 
@@ -55,7 +60,7 @@ class Lexer(object):
         return self.start_group and char == self.end_group_char
 
     def parse_end_group(self, char: str) -> None:
-        self.tokens.append(temp)
+        self.tokens.append(self.temp)
         self.tokens.append(char)
         self.temp = ''
         self.start_group = False
