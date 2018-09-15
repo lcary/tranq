@@ -17,8 +17,6 @@ class TestLexer(unittest.TestCase):
             Token(token_type=TokenType.identifier, value='var'),
             Token(token_type=TokenType.operator, value='+'),
             Token(token_type=TokenType.number, value='1')]
-        for i in tokens:
-            print(i)
         self.assertEqual(tokens, expect)
 
     def test_multiline_computation(self):

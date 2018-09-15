@@ -105,3 +105,6 @@ venv.bak/
 
 # Output directory
 out/
+
+# macosx files
+.DS_Store
