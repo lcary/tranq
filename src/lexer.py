@@ -1,31 +1,11 @@
-from enum import Enum
-from typing import List, Optional, NamedTuple
+from typing import List, Optional
 
-
-class TokenType(Enum):
-    operator = 1
-    identifier = 2
-    number = 3
-    string = 4
-
-    def __repr__(self):
-        return self.name
-
-
-class Token(NamedTuple):
-    """
-    A small unit of language, consisting of a type and value.
-
-    For example, a token with value '+' might be an operator,
-    or a token with value '1' might be a number.
-    """
-    token_type: TokenType
-    value: str
+from .token import Token, TokenType
 
 
 class Lexer(object):
     """
-    Creates lists of tokens from input text.
+    Produces ordered lists of tokens from input text.
 
     Inspired by https://medium.freecodecamp.org/the-programming-language-pipeline-91d3f449c919  # noqa: E501
     """
@@ -54,7 +34,7 @@ class Lexer(object):
 
     def get_tokens(self, *args, **kwargs) -> List[Token]:
         """
-        Returns a list of tokens for given input text.
+        Returns an ordered list of tokens for given input text.
         """
         for text in args:
             for char in text:
