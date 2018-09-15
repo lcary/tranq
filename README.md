@@ -28,4 +28,4 @@ tox
 
 # ci
 
-[<img src="https://travis-ci.com/lcary/tranq.svg?branch=master">](https://travis-ci.org/lcary/tranq)
+[<img src="https://travis-ci.com/lcary/tranq.svg?branch=master">](https://travis-ci.com/lcary/tranq)
