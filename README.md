@@ -4,7 +4,7 @@ Toy language built with Python.
 
 Goals: bad name, nice language.
 
-Requirements: Python 3.
+Requirements: Python >= 3.6.
 
 ### build
 
