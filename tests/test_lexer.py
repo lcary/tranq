@@ -9,14 +9,15 @@ class TestLexer(unittest.TestCase):
         lexer = Lexer()
         tokens = lexer.parse_tokens(text)
         expect = [
-            Token(token_type=TokenType.variable, value='print'),
+            Token(token_type=TokenType.identifier, value='print'),
             Token(token_type=TokenType.operator, value=':'),
-            Token(token_type=TokenType.variable, value='4'),
+            Token(token_type=TokenType.number, value='4'),
             Token(token_type=TokenType.operator, value='*'),
-            Token(token_type=TokenType.variable, value='var'),
+            Token(token_type=TokenType.identifier, value='var'),
             Token(token_type=TokenType.operator, value='+'),
-            Token(token_type=TokenType.unknown, value='1')]
-        print(expect)
+            Token(token_type=TokenType.number, value='1')]
+        for i in tokens:
+            print(i)
         self.assertEqual(tokens, expect)
 
 

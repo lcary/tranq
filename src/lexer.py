@@ -4,11 +4,9 @@ from typing import List, Optional, NamedTuple
 
 class TokenType(Enum):
     operator = 1
-    variable = 2
+    identifier = 2
     number = 3
     string = 4
-    grouping = 5
-    unknown = 6
 
     def __repr__(self):
         return self.name
@@ -59,18 +57,9 @@ class Lexer(object):
         Returns a list of tokens for given input text.
         """
         for text in args:
-            index = 0
-            length = len(text)
-            end_of_text = False
-
-            def end_of_text() -> bool:
-                return index == length - 1
-
             for char in text:
                 self.parse_token(char)
-                if end_of_text() and self.temp:
-                    self.tokens.append(Token(TokenType.unknown, self.temp))
-                index += 1
+            self.parse_end_of_text()
 
         return self.tokens
 
@@ -114,7 +103,7 @@ class Lexer(object):
         return self.start_group and char == self.end_group_char
 
     def parse_end_group(self, char: str) -> None:
-        self.tokens.append(Token(TokenType.grouping, self.temp))
+        self.tokens.append(Token(TokenType.identifier, self.temp))
         self.tokens.append(Token(TokenType.operator, char))
         self.temp = ''
         self.start_group = False
@@ -132,9 +121,7 @@ class Lexer(object):
         return char in self.split_chars
 
     def parse_split_char(self, char: str) -> None:
-        if self.temp != '':
-            self.tokens.append(Token(TokenType.variable, self.temp))
-            self.temp = ''
+        self._flush_temp()
         if char not in self.whitespace_chars:
             self.tokens.append(Token(TokenType.operator, char))
         return
@@ -142,3 +129,16 @@ class Lexer(object):
     def parse_generic_char(self, char: str) -> None:
         self.temp += char
         return
+
+    def parse_end_of_text(self):
+        self._flush_temp()
+
+    def _flush_temp(self):
+        if self.temp != '':
+            try:
+                int(self.temp)
+            except ValueError:
+                self.tokens.append(Token(TokenType.identifier, self.temp))
+            else:
+                self.tokens.append(Token(TokenType.number, self.temp))
+            self.temp = ''
