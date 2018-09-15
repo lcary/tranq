@@ -1,9 +1,11 @@
-from .lexer import Lexer
+import sys
+
+from lexer import Lexer
 
 
 def main():
     lexer = Lexer()
-    tokens = lexer.parse_tokens("print: 4 * var + 1")
+    tokens = lexer.get_tokens(*sys.argv[1:])
     print(tokens)
 
 
