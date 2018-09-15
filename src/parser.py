@@ -1,5 +1,6 @@
 from typing import List
 
+from .ast import AbstractSyntaxTree
 from .token import Token
 
 
@@ -12,8 +13,8 @@ class Parser(object):
      - Take groupings into account.
      - Parse order of operations.
 
-    Returns an AbstractSyntaxTree.
+    Returns an `AbstractSyntaxTree`.
     """
 
-    def parse_tokens(self, tokens: List[Token]):
+    def parse_tokens(self, tokens: List[Token]) -> AbstractSyntaxTree:
         pass
