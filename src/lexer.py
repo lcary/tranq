@@ -87,7 +87,8 @@ class Lexer(object):
             self.parse_generic_char(char)
             return
 
-        raise ValueError('Edge case encountered: token ({}) '
+        raise ValueError(
+            'Edge case encountered: token ({}) '
             'not parsed during state: ({})'.format(char, self.__dict__))
 
     def is_start_group(self, char: str) -> bool:
