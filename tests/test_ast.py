@@ -14,9 +14,9 @@ class TestAbstractSyntaxTree(unittest.TestCase):
         n4 = Node(Token(token_type=TokenType.number, value='1'))
 
         ast = AbstractSyntaxTree(n0)
-        n0.children = [n1]
-        n1.children = [n3]
-        n3.children = [n2, n4]
+        n0.add_children([n1])
+        n1.add_children([n3])
+        n3.add_children([n2, n4])
 
         expect = dedent('''\
         Token(token_type=identifier, value='print')
