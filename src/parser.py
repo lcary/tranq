@@ -1,13 +1,13 @@
 from typing import List
 
 from .ast import AbstractSyntaxTree, Node
-from .token import Token
+from .token import Token, TokenType
 
 
 class Parser(object):
     """
     Adds structure to an ordered list of tokens produced
-    by the Lexer.
+    by the `Lexer`.
 
     Primary responsibilities:
      - Take groupings of tokens into account.
@@ -20,14 +20,21 @@ class Parser(object):
         """
         Returns an `AbstractSyntaxTree` for an ordered list of tokens.
         """
-        ast = AbstractSyntaxTree()
-        root_parsed = False
-        for token in tokens:
-            if not root_parsed:
-                ast.root = Node(token)
-                root_parsed = True
+        root = Node(tokens[0])
+        ast = AbstractSyntaxTree(root)
+        last_parent: Node = root
+        for index, token in enumerate(tokens[1:]):
+            node = Node(token)
+            if token.token_type in [TokenType.identifier,
+                                    TokenType.number,
+                                    TokenType.string]:
+                last_parent.add_child(node)
                 continue
-            # TODO: parse children nodes, need to check whether
-            # binary/unary/etc-ary operator or an identifier
+            if token.token_type == TokenType.operator:
+                if token.value in ('+', '-', '*', '/', '<', '>'):
+                    ast.insert_parent_into_hierarchy(node, last_parent)
+                else:
+                    last_parent.add_child(node)
+                last_parent = node
 
         return ast

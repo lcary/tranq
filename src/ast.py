@@ -34,6 +34,9 @@ class Node(object):
         return '{}({}, children={})'.format(
             self.__class__.__name__, self.token, num_children)
 
+    def add_child(self, child: 'Node') -> None:
+        self.add_children([child])
+
     def add_children(self, children: List['Node']) -> None:
         self.children.extend(children)
         for child in self.children:
@@ -94,6 +97,40 @@ class AbstractSyntaxTree(object):
             for child in node.children:
                 yield child, depth
                 yield from self.traverse(child, depth=(depth + 1))
+
+    def insert_parent_into_hierarchy(self, new_parent: Node,
+                                     old_parent: Node) -> None:
+        """
+        By inserting a parent into the hierarchy, a node becomes the parent
+        of all children for a previously added parent. The old parent becomes
+        the grandparent in this case.
+
+        For example, below, a new parent ('N') is added to an existing
+        hierarchy of nodes. The previous parent node ('A') becomes a
+        grandparent of its previous children ('B' and 'C').
+
+        Before::
+
+              A
+             / \
+            B   C
+
+        After::
+
+                A
+               /
+              N
+             / \
+            B   C
+
+        This briefly results in an orphaned set of child nodes in the tree.
+        """
+        old_parent_children = old_parent.children
+        old_parent.children = []
+        for child in old_parent_children:
+            child.parent = None
+        new_parent.add_children(old_parent_children)
+        old_parent.add_child(new_parent)
 
     def __repr__(self):
         lines = [str(self.root.token)]
