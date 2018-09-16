@@ -1,4 +1,3 @@
-import hashlib
 from typing import List, Optional
 
 from .token import Token
@@ -24,7 +23,6 @@ class Node(object):
         self.token: Optional[Token] = token
         self.parent: Optional['Node'] = parent
         self.children: List['Node'] = children
-        self._siblings: Optional[List[Node]] = None
 
     def __repr__(self):
         try:
@@ -41,11 +39,6 @@ class Node(object):
         self.children.extend(children)
         for child in self.children:
             child.parent = self
-
-    @property
-    def hash(self):
-        hash_object = hashlib.md5(str(self.__dict__))
-        return hash_object.hexdigest()
 
     @property
     def siblings(self) -> Optional[List['Node']]:
