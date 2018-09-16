@@ -1,4 +1,6 @@
-from typing import List, Optional
+from collections import OrderedDict
+import hashlib
+from typing import Dict, List, Optional
 
 from .token import Token
 
@@ -23,6 +25,11 @@ class Node(object):
         self.token: Optional[Token] = token
         self.parent: Optional['Node'] = parent
         self.children: List['Node'] = children
+
+    @property
+    def hash(self):
+        s = str(self.__dict__).encode()
+        return hashlib.sha1(s).hexdigest()
 
     def __repr__(self):
         try:
@@ -80,6 +87,17 @@ class AstRepr(object):
     node = ' └── '
 
 
+def hashes(nodes: List[Node]) -> List[str]:
+    return [n.hash for n in nodes]
+
+
+def get_hash_dict(node_dict: Dict[Node, List[Node]]) -> Dict[str, List[str]]:
+    d: Dict[str, List[str]] = OrderedDict()
+    for k, v in node_dict.items():
+        d[k.hash] = hashes(v)
+    return d
+
+
 class AbstractSyntaxTree(object):
 
     def __init__(self, root: Optional[Node] = None) -> None:
@@ -90,6 +108,22 @@ class AbstractSyntaxTree(object):
             for child in node.children:
                 yield child, depth
                 yield from self.traverse(child, depth=(depth + 1))
+
+    def to_node_dict(self) -> Dict[Node, List[Node]]:
+        d: Dict[Node, List[Node]] = OrderedDict()
+        if self.root:
+            d[self.root] = self.root.children
+            for node, _ in self.traverse(self.root):
+                d[node] = node.children
+        return d
+
+    def to_hash_dict(self) -> Dict[str, List[str]]:
+        return get_hash_dict(self.to_node_dict())
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return False
+        return self.to_hash_dict() == other.to_hash_dict()  # type: ignore
 
     def insert_parent_into_hierarchy(self, new_parent: Node,
                                      old_parent: Node) -> None:
